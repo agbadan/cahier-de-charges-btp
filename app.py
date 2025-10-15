@@ -1,23 +1,18 @@
 import os
+import requests  # N'oubliez pas d'installer requests: pip install requests
 from flask import Flask, render_template, request
-from flask_mail import Mail, Message
 
 app = Flask(__name__)
 
-# --- Configuration pour l'envoi d'emails ---
-# Utilise les variables d'environnement pour la sécurité
-# --- Configuration DÉFINITIVE pour l'envoi d'emails via Brevo ---
-app.config['MAIL_SERVER'] = 'smtp-relay.brevo.com'  # Le serveur de Brevo
-app.config['MAIL_PORT'] = 587                       # Le port pour TLS
-app.config['MAIL_USE_TLS'] = True                   # OBLIGATOIRE: Activer la sécurité TLS
-app.config['MAIL_USE_SSL'] = False                  # OBLIGATOIRE: Désactiver l'ancien mode SSL
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME') # Votre login SMTP Brevo
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD') # Votre clé API SMTP Brevo
-# ------------------------------------------------------------------
+# --- NOUVELLE Configuration pour l'API Brevo (plus de Flask-Mail) ---
+BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
+BREVO_API_KEY = os.environ.get('BREVO_API_KEY')       # La clé API SMTP de Brevo
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL')      # Votre email validé comme expéditeur sur Brevo
+SENDER_NAME = "Serveur Cahier de Charges BTP"        # Nom de l'expéditeur qui apparaîtra dans l'email
+RECIPIENT_EMAIL = os.environ.get('RECIPIENT_EMAIL')  # Votre email où recevoir les notifications
+# ---------------------------------------------------------------------
 
-mail = Mail(app)
-
-# Dictionnaire pour rendre les noms plus lisibles pour le client
+# Le dictionnaire reste identique
 feature_names = {
     # Rôles
     "role_super_admin": "Rôle: Super-Admin (DG)",
@@ -75,6 +70,36 @@ feature_names = {
     "tech_connexion_securisee": "Sécurité: Connexion sécurisée par mot de passe",
 }
 
+# NOUVELLE fonction pour envoyer l'email via l'API HTTP de Brevo
+def send_brevo_email(subject, html_content):
+    # Vérifie que les variables d'environnement sont bien présentes
+    if not all([BREVO_API_KEY, SENDER_EMAIL, RECIPIENT_EMAIL]):
+        print("Erreur critique: Une ou plusieurs variables d'environnement pour l'email sont manquantes.")
+        return False
+
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+    payload = {
+        "sender": {"name": SENDER_NAME, "email": SENDER_EMAIL},
+        "to": [{"email": RECIPIENT_EMAIL}],
+        "subject": subject,
+        "htmlContent": html_content
+    }
+    try:
+        response = requests.post(BREVO_API_URL, json=payload, headers=headers)
+        response.raise_for_status()  # Lève une exception si le statut est une erreur (4xx ou 5xx)
+        print("Email envoyé avec succès via l'API Brevo!")
+        return True
+    except requests.exceptions.RequestException as e:
+        # Affiche des logs détaillés en cas d'échec
+        print(f"Erreur lors de la requête à l'API Brevo: {e}")
+        if 'response' in locals():
+            print(f"Statut de la réponse: {response.status_code}")
+            print(f"Détails de la réponse: {response.text}")
+        return False
 
 @app.route('/')
 def index():
@@ -91,24 +116,18 @@ def resultat():
              feature_text += f" : {value.capitalize()}"
         selected_features.append(feature_text)
 
-    # Envoi de l'email de notification
-    try:
-        email_body = "Nouvelle soumission du cahier des charges BTP-Pilot.\n\n"
-        email_body += "Sélections du client :\n"
-        for feature in selected_features:
-            email_body += f"- {feature}\n"
+    # Création du corps de l'email en format HTML pour un joli rendu
+    email_subject = "Nouvelle sélection de fonctionnalités - BTP-Pilot"
+    html_body = "<h1>Nouvelle soumission du cahier des charges BTP-Pilot</h1>"
+    html_body += "<p>Un client a soumis la sélection de fonctionnalités suivante :</p><ul>"
+    for feature in selected_features:
+        html_body += f"<li>✅ {feature}</li>"
+    html_body += "</ul>"
+    
+    # Appel de notre nouvelle fonction d'envoi d'email
+    send_brevo_email(email_subject, html_body)
 
-        msg = Message(
-            'Nouvelle sélection de fonctionnalités - BTP-Pilot',
-            sender=app.config['MAIL_USERNAME'],
-            recipients=[app.config['MAIL_USERNAME']] # L'email est envoyé à vous-même
-        )
-        msg.body = email_body
-        mail.send(msg)
-    except Exception as e:
-        print(f"Erreur lors de l'envoi de l'email : {e}")
-
-    # Affichage de la page de confirmation au client
+    # Affichage de la page de confirmation au client (ne change pas)
     return f"""
     <html>
         <head><title>Votre Sélection</title>
