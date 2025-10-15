@@ -1,18 +1,19 @@
 import os
-import requests  # N'oubliez pas d'installer requests: pip install requests
 from flask import Flask, render_template, request
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
 
 app = Flask(__name__)
 
-# --- NOUVELLE Configuration pour l'API Brevo (plus de Flask-Mail) ---
-BREVO_API_URL = "https://api.brevo.com/v3/smtp/email"
-BREVO_API_KEY = os.environ.get('BREVO_API_KEY')       # La clé API SMTP de Brevo
-SENDER_EMAIL = os.environ.get('SENDER_EMAIL')      # Votre email validé comme expéditeur sur Brevo
-SENDER_NAME = "Serveur Cahier de Charges BTP"        # Nom de l'expéditeur qui apparaîtra dans l'email
-RECIPIENT_EMAIL = os.environ.get('RECIPIENT_EMAIL')  # Votre email où recevoir les notifications
-# ---------------------------------------------------------------------
+# --- Configuration via les variables d'environnement ---
+# Nous lisons la clé API et les emails directement depuis l'environnement Render
+BREVO_API_KEY = os.environ.get('BREVO_API_KEY')
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL')
+RECIPIENT_EMAIL = os.environ.get('RECIPIENT_EMAIL')
+SENDER_NAME = "Notification BTP-Pilot"
+# --------------------------------------------------------
 
-# Le dictionnaire reste identique
+# Le dictionnaire des fonctionnalités reste le même
 feature_names = {
     # Rôles
     "role_super_admin": "Rôle: Super-Admin (DG)",
@@ -70,45 +71,43 @@ feature_names = {
     "tech_connexion_securisee": "Sécurité: Connexion sécurisée par mot de passe",
 }
 
-# NOUVELLE fonction pour envoyer l'email via l'API HTTP de Brevo
-def send_brevo_email(subject, html_content):
-    # Vérifie que les variables d'environnement sont bien présentes
-    if not all([BREVO_API_KEY, SENDER_EMAIL, RECIPIENT_EMAIL]):
-        print("Erreur critique: Une ou plusieurs variables d'environnement pour l'email sont manquantes.")
-        return False
 
-    headers = {
-        "accept": "application/json",
-        "api-key": BREVO_API_KEY,
-        "content-type": "application/json"
-    }
-    payload = {
-        "sender": {"name": SENDER_NAME, "email": SENDER_EMAIL},
-        "to": [{"email": RECIPIENT_EMAIL}],
-        "subject": subject,
-        "htmlContent": html_content
-    }
+# NOUVELLE fonction d'envoi d'email avec la bibliothèque officielle Brevo
+def send_brevo_email(subject, html_content):
+    if not all([BREVO_API_KEY, SENDER_EMAIL, RECIPIENT_EMAIL]):
+        print("Erreur critique: Variables d'environnement pour l'email manquantes.")
+        return
+
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = BREVO_API_KEY
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+    
+    sender = sib_api_v3_sdk.SendSmtpEmailSender(name=SENDER_NAME, email=SENDER_EMAIL)
+    to = [sib_api_v3_sdk.SendSmtpEmailTo(email=RECIPIENT_EMAIL)]
+    
+    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+        sender=sender,
+        to=to,
+        subject=subject,
+        html_content=html_content
+    )
+
     try:
-        response = requests.post(BREVO_API_URL, json=payload, headers=headers)
-        response.raise_for_status()  # Lève une exception si le statut est une erreur (4xx ou 5xx)
-        print("Email envoyé avec succès via l'API Brevo!")
-        return True
-    except requests.exceptions.RequestException as e:
-        # Affiche des logs détaillés en cas d'échec
-        print(f"Erreur lors de la requête à l'API Brevo: {e}")
-        if 'response' in locals():
-            print(f"Statut de la réponse: {response.status_code}")
-            print(f"Détails de la réponse: {response.text}")
-        return False
+        api_response = api_instance.send_transac_email(send_smtp_email)
+        print("Email envoyé avec succès via la bibliothèque Brevo !")
+        # from pprint import pprint; pprint(api_response) # Décommenter pour voir la réponse complète
+    except ApiException as e:
+        print(f"Exception lors de l'envoi de l'email via Brevo: {e}\n")
+
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
 @app.route('/resultat', methods=['POST'])
 def resultat():
     selections = request.form
-    
     selected_features = []
     for key, value in selections.items():
         feature_text = feature_names.get(key, key.replace("_", " ").capitalize())
@@ -116,7 +115,7 @@ def resultat():
              feature_text += f" : {value.capitalize()}"
         selected_features.append(feature_text)
 
-    # Création du corps de l'email en format HTML pour un joli rendu
+    # Création du contenu de l'email
     email_subject = "Nouvelle sélection de fonctionnalités - BTP-Pilot"
     html_body = "<h1>Nouvelle soumission du cahier des charges BTP-Pilot</h1>"
     html_body += "<p>Un client a soumis la sélection de fonctionnalités suivante :</p><ul>"
@@ -124,10 +123,10 @@ def resultat():
         html_body += f"<li>✅ {feature}</li>"
     html_body += "</ul>"
     
-    # Appel de notre nouvelle fonction d'envoi d'email
+    # Appel de la nouvelle fonction d'envoi
     send_brevo_email(email_subject, html_body)
 
-    # Affichage de la page de confirmation au client (ne change pas)
+    # Affichage de la page de confirmation au client
     return f"""
     <html>
         <head><title>Votre Sélection</title>
