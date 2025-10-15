@@ -6,8 +6,8 @@ app = Flask(__name__)
 
 # --- Configuration pour l'envoi d'emails ---
 # Utilise les variables d'environnement pour la sécurité
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
+app.config['MAIL_SERVER'] = 'smtp-relay.brevo.com'
+app.config['MAIL_PORT'] = '587'
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME') # Votre email Gmail
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD') # Votre mot de passe d'application Google
 app.config['MAIL_USE_TLS'] = False
