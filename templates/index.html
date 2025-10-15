@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration - Outil de Pilotage BTP</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #005a9c;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        .module {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .feature-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .feature-list li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        label {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        input[type="checkbox"], input[type="radio"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+        .sub-list {
+            list-style-type: none;
+            padding-left: 30px;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Proposition de Cahier des Charges – Outil de Pilotage BTP</h1>
+        <p><strong>Nom du Projet :</strong> BTP-Pilot</p>
+        <p><strong>Client :</strong> ELC BTP</p>
+        <p>Veuillez cocher les fonctionnalités souhaitées pour votre projet.</p>
+
+        <!-- On utilise une balise <form> pour envoyer les données au backend -->
+        <form action="/resultat" method="post">
+
+            <!-- Section 2 : Profils Utilisateurs -->
+            <h2>2. Profils Utilisateurs & Niveaux d'Accès</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rôle</th>
+                        <th>Description</th>
+                        <th>Permissions Clés</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><label><input type="checkbox" name="role_super_admin"> <strong>Super-Admin (DG)</strong></label></td>
+                        <td>A une vue sur l'ensemble de l'entreprise.</td>
+                        <td>
+                            <ul class="feature-list">
+                                <li><label><input type="checkbox" name="perm_sa_voir_chantiers"> Voir tous les chantiers</label></li>
+                                <li><label><input type="checkbox" name="perm_sa_gerer_users"> Gérer les utilisateurs</label></li>
+                                <li><label><input type="checkbox" name="perm_sa_valider_budgets"> Valider les budgets</label></li>
+                                <li><label><input type="checkbox" name="perm_sa_tous_rapports"> Accéder à tous les rapports</label></li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label><input type="checkbox" name="role_comptable_central"> <strong>Comptable Central</strong></label></td>
+                        <td>Gère la comptabilité globale et valide les flux.</td>
+                        <td>
+                            <ul class="feature-list">
+                                <li><label><input type="checkbox" name="perm_cc_voir_chantiers"> Voir tous les chantiers</label></li>
+                                <li><label><input type="checkbox" name="perm_cc_transferts"> Gérer les transferts de fonds</label></li>
+                                <li><label><input type="checkbox" name="perm_cc_valider_depenses"> Valider les dépenses importantes</label></li>
+                                <li><label><input type="checkbox" name="perm_cc_generer_rapports"> Générer les rapports comptables</label></li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label><input type="checkbox" name="role_chef_chantier"> <strong>Chef de Chantier</strong></label></td>
+                        <td>Est responsable de l'opérationnel sur un site.</td>
+                        <td>
+                             <ul class="feature-list">
+                                <li><label><input type="checkbox" name="perm_cdc_voir_son_chantier"> Voir uniquement SON/SES chantier(s)</label></li>
+                                <li><label><input type="checkbox" name="perm_cdc_consulter_budget"> Consulter le budget et les dépenses</label></li>
+                                <li><label><input type="checkbox" name="perm_cdc_approuver_petites_depenses"> Approuver les petites dépenses</label></li>
+                            </ul>
+                        </td>
+                    </tr>
+                     <tr>
+                        <td><label><input type="checkbox" name="role_comptable_chantier"> <strong>Comptable de Chantier</strong></label></td>
+                        <td>Saisit les dépenses au quotidien sur le terrain.</td>
+                        <td>
+                             <ul class="feature-list">
+                                <li><label><input type="checkbox" name="perm_cc2_acces_son_chantier"> Accéder uniquement à SON/SES chantier(s)</label></li>
+                                <li><label><input type="checkbox" name="perm_cc2_enregistrer_depense"> Enregistrer de nouvelles dépenses</label></li>
+                                <li><label><input type="checkbox" name="perm_cc2_consulter_depenses"> Consulter les dépenses de son/ses chantier(s)</label></li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Section 3 : Périmètre Fonctionnel -->
+            <h2>3. Périmètre Fonctionnel</h2>
+
+            <div class="module">
+                <h3>Module 1: Gestion des Chantiers (Projets)</h3>
+                <ul class="feature-list">
+                    <li><label><input type="checkbox" name="mod1_creer_chantier"> Créer un nouveau chantier (Nom, Client, Localisation, Budget, Dates)</label></li>
+                    <li><label><input type="checkbox" name="mod1_lister_chantiers"> Lister tous les chantiers avec leur statut</label></li>
+                    <li><label><input type="checkbox" name="mod1_dashboard_chantier"> Tableau de bord par chantier (Budget, Dépenses, Solde, % avancement)</label></li>
+                    <li><label><input type="checkbox" name="mod1_assigner_users"> Assigner des utilisateurs à un chantier</label></li>
+                    <li><label><input type="checkbox" name="mod1_archiver_chantiers"> Archiver les chantiers terminés</label></li>
+                </ul>
+            </div>
+
+            <div class="module">
+                <h3>Module 2: Gestion Financière & Comptable</h3>
+                <h4>Dépenses :</h4>
+                <ul class="sub-list">
+                    <li><label><input type="checkbox" name="mod2_formulaire_depense"> Formulaire simple pour ajouter une dépense</label></li>
+                    <li><label><input type="checkbox" name="mod2_gestion_categories"> Gestion des catégories de dépenses (Ciment, Fer, etc.)</label>
+                        <br>Personnalisable ?
+                        <label><input type="radio" name="mod2_cat_perso" value="oui"> Oui</label>
+                        <label><input type="radio" name="mod2_cat_perso" value="non" checked> Non</label>
+                    </li>
+                    <li><label><input type="checkbox" name="mod2_photo_recu"> <strong>Fonctionnalité clé :</strong> Prise de photo du reçu/facture obligatoire</label></li>
+                    <li><label><input type="checkbox" name="mod2_mode_hors_ligne"> <strong>Fonctionnalité clé :</strong> Mode HORS-LIGNE pour l'ajout de dépenses</label></li>
+                    <li><label><input type="checkbox" name="mod2_circuit_validation"> Circuit de validation simple pour les grosses dépenses</label></li>
+                </ul>
+                <h4>Flux Entrants :</h4>
+                 <ul class="sub-list">
+                    <li><label><input type="checkbox" name="mod2_transfert_fonds"> Enregistrer un transfert de fonds du siège vers un chantier</label></li>
+                    <li><label><input type="checkbox" name="mod2_confirmer_reception"> Le comptable de chantier doit "confirmer la réception" des fonds</label></li>
+                </ul>
+            </div>
+
+            <div class="module">
+                <h3>Module 3: Tableaux de Bord & Rapports</h3>
+                <h4>Tableau de Bord Principal (pour le DG) :</h4>
+                <ul class="sub-list">
+                    <li><label><input type="checkbox" name="mod3_vue_ensemble_kpi"> Vue d'ensemble des indicateurs clés (Trésorerie, Dépenses...)</label></li>
+                    <li><label><input type="checkbox" name="mod3_graph_camembert"> Graphique des dépenses par chantier (Camembert)</label></li>
+                    <li><label><input type="checkbox" name="mod3_graph_courbe"> Graphique de l'évolution des dépenses dans le temps (Courbe)</label></li>
+                    <li><label><input type="checkbox" name="mod3_liste_top5"> Liste des 5 chantiers les plus coûteux</label></li>
+                    <li><label><input type="checkbox" name="mod3_alertes_budget"> Système d'alertes (ex: budget dépassé à 80%)</label></li>
+                </ul>
+                <h4>Rapports Détaillés :</h4>
+                <ul class="sub-list">
+                    <li><label><input type="checkbox" name="mod3_generer_rapports_detailles"> Générer des rapports de dépenses (par chantier, période, catégorie)</label></li>
+                    <li><label><input type="checkbox" name="mod3_export_excel"> Exporter les rapports en format <strong>Excel</strong></label></li>
+                    <li><label><input type="checkbox" name="mod3_export_pdf"> Exporter les rapports en format <strong>PDF</strong></label></li>
+                    <li><label><input type="checkbox" name="mod3_visualiser_recus"> Visualiser toutes les photos des reçus pour une période donnée</label></li>
+                </ul>
+            </div>
+            
+            <div class="module">
+                <h3>Module 4: Le "Plus" – Assistant IA (Optionnel / Phase 3)</h3>
+                <ul class="feature-list">
+                    <li><label><input type="checkbox" name="mod4_ia_chat"> Interface de chat pour poser des questions en langage simple</label></li>
+                </ul>
+            </div>
+
+            <!-- Section 4 : Spécifications Techniques -->
+            <h2>4. Spécifications Techniques & Livrables</h2>
+            <div class="module">
+                <h3>Plateformes :</h3>
+                <ul class="feature-list">
+                    <li><label><input type="checkbox" name="tech_app_web"> <strong>Application Web</strong> (Accessible depuis n'importe quel navigateur)</label></li>
+                    <li><label><input type="checkbox" name="tech_app_mobile"> <strong>Application Mobile Android (.apk)</strong></label></li>
+                    <li><label><input type="checkbox" name="tech_app_bureau"> Application de Bureau (Windows/Mac) – <em>Optionnel</em></label></li>
+                </ul>
+                <h3>Données & Sécurité :</h3>
+                 <ul class="feature-list">
+                    <li><label><input type="checkbox" name="tech_hebergement_securise"> Hébergement des données sur un serveur sécurisé</label></li>
+                    <li><label><input type="checkbox" name="tech_sauvegardes"> Sauvegardes quotidiennes automatiques</label></li>
+                    <li><label><input type="checkbox" name="tech_connexion_securisee"> Connexion sécurisée par mot de passe pour chaque utilisateur</label></li>
+                </ul>
+            </div>
+
+            <div class="button-container">
+                <button type="submit">Générer ma sélection de fonctionnalités</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>
