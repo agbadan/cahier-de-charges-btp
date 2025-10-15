@@ -6,12 +6,14 @@ app = Flask(__name__)
 
 # --- Configuration pour l'envoi d'emails ---
 # Utilise les variables d'environnement pour la sécurité
-app.config['MAIL_SERVER'] = 'smtp-relay.brevo.com'
-app.config['MAIL_PORT'] = '587'
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME') # Votre email Gmail
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD') # Votre mot de passe d'application Google
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
+# --- Configuration DÉFINITIVE pour l'envoi d'emails via Brevo ---
+app.config['MAIL_SERVER'] = 'smtp-relay.brevo.com'  # Le serveur de Brevo
+app.config['MAIL_PORT'] = 587                       # Le port pour TLS
+app.config['MAIL_USE_TLS'] = True                   # OBLIGATOIRE: Activer la sécurité TLS
+app.config['MAIL_USE_SSL'] = False                  # OBLIGATOIRE: Désactiver l'ancien mode SSL
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME') # Votre login SMTP Brevo
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD') # Votre clé API SMTP Brevo
+# ------------------------------------------------------------------
 
 mail = Mail(app)
 
