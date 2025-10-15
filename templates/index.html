@@ -9,7 +9,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
             margin: 0 auto;
-            max-width: 800px;
+            max-width: 900px;
             padding: 20px;
             background-color: #f4f7f6;
             color: #333;
@@ -31,14 +31,14 @@
             border: 1px solid #ddd;
             border-radius: 5px;
         }
-        .feature-list {
+        .feature-list, .sub-list {
             list-style-type: none;
             padding-left: 0;
         }
         .feature-list li {
             margin-bottom: 12px;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
         }
         label {
             margin-left: 10px;
@@ -46,11 +46,12 @@
         }
         input[type="checkbox"], input[type="radio"] {
             transform: scale(1.2);
+            margin-top: 4px;
             cursor: pointer;
+            flex-shrink: 0;
         }
         .sub-list {
-            list-style-type: none;
-            padding-left: 30px;
+            padding-left: 20px;
             margin-top: 10px;
         }
         table {
@@ -79,9 +80,64 @@
             font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s;
+            width: auto;
         }
         button:hover {
             background-color: #218838;
+        }
+
+        /* =============================================== */
+        /* ==         STYLES POUR LES MOBILES           == */
+        /* =============================================== */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.4em; }
+            
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr {
+                border: 1px solid #ccc;
+                margin-bottom: 15px;
+            }
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 40%;
+                min-height: 30px;
+                text-align: right;
+            }
+            td:before {
+                position: absolute;
+                top: 12px;
+                left: 10px;
+                width: 35%;
+                padding-right: 10px;
+                white-space: nowrap;
+                content: attr(data-label);
+                font-weight: bold;
+                text-align: left;
+            }
+            td ul {
+                text-align: left;
+            }
+            button {
+                width: 100%;
+                padding: 18px;
+                font-size: 18px;
+            }
         }
     </style>
 </head>
@@ -93,10 +149,7 @@
         <p><strong>Client :</strong> ELC BTP</p>
         <p>Veuillez cocher les fonctionnalités souhaitées pour votre projet.</p>
 
-        <!-- On utilise une balise <form> pour envoyer les données au backend -->
         <form action="/resultat" method="post">
-
-            <!-- Section 2 : Profils Utilisateurs -->
             <h2>2. Profils Utilisateurs & Niveaux d'Accès</h2>
             <table>
                 <thead>
@@ -108,9 +161,9 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><label><input type="checkbox" name="role_super_admin"> <strong>Super-Admin (DG)</strong></label></td>
-                        <td>A une vue sur l'ensemble de l'entreprise.</td>
-                        <td>
+                        <td data-label="Rôle"><label><input type="checkbox" name="role_super_admin"> <strong>Super-Admin (DG)</strong></label></td>
+                        <td data-label="Description">A une vue sur l'ensemble de l'entreprise.</td>
+                        <td data-label="Permissions">
                             <ul class="feature-list">
                                 <li><label><input type="checkbox" name="perm_sa_voir_chantiers"> Voir tous les chantiers</label></li>
                                 <li><label><input type="checkbox" name="perm_sa_gerer_users"> Gérer les utilisateurs</label></li>
@@ -120,9 +173,9 @@
                         </td>
                     </tr>
                     <tr>
-                        <td><label><input type="checkbox" name="role_comptable_central"> <strong>Comptable Central</strong></label></td>
-                        <td>Gère la comptabilité globale et valide les flux.</td>
-                        <td>
+                        <td data-label="Rôle"><label><input type="checkbox" name="role_comptable_central"> <strong>Comptable Central</strong></label></td>
+                        <td data-label="Description">Gère la comptabilité globale et valide les flux.</td>
+                        <td data-label="Permissions">
                             <ul class="feature-list">
                                 <li><label><input type="checkbox" name="perm_cc_voir_chantiers"> Voir tous les chantiers</label></li>
                                 <li><label><input type="checkbox" name="perm_cc_transferts"> Gérer les transferts de fonds</label></li>
@@ -132,9 +185,9 @@
                         </td>
                     </tr>
                     <tr>
-                        <td><label><input type="checkbox" name="role_chef_chantier"> <strong>Chef de Chantier</strong></label></td>
-                        <td>Est responsable de l'opérationnel sur un site.</td>
-                        <td>
+                        <td data-label="Rôle"><label><input type="checkbox" name="role_chef_chantier"> <strong>Chef de Chantier</strong></label></td>
+                        <td data-label="Description">Est responsable de l'opérationnel sur un site.</td>
+                        <td data-label="Permissions">
                              <ul class="feature-list">
                                 <li><label><input type="checkbox" name="perm_cdc_voir_son_chantier"> Voir uniquement SON/SES chantier(s)</label></li>
                                 <li><label><input type="checkbox" name="perm_cdc_consulter_budget"> Consulter le budget et les dépenses</label></li>
@@ -143,9 +196,9 @@
                         </td>
                     </tr>
                      <tr>
-                        <td><label><input type="checkbox" name="role_comptable_chantier"> <strong>Comptable de Chantier</strong></label></td>
-                        <td>Saisit les dépenses au quotidien sur le terrain.</td>
-                        <td>
+                        <td data-label="Rôle"><label><input type="checkbox" name="role_comptable_chantier"> <strong>Comptable de Chantier</strong></label></td>
+                        <td data-label="Description">Saisit les dépenses au quotidien sur le terrain.</td>
+                        <td data-label="Permissions">
                              <ul class="feature-list">
                                 <li><label><input type="checkbox" name="perm_cc2_acces_son_chantier"> Accéder uniquement à SON/SES chantier(s)</label></li>
                                 <li><label><input type="checkbox" name="perm_cc2_enregistrer_depense"> Enregistrer de nouvelles dépenses</label></li>
@@ -156,9 +209,7 @@
                 </tbody>
             </table>
 
-            <!-- Section 3 : Périmètre Fonctionnel -->
             <h2>3. Périmètre Fonctionnel</h2>
-
             <div class="module">
                 <h3>Module 1: Gestion des Chantiers (Projets)</h3>
                 <ul class="feature-list">
@@ -169,7 +220,6 @@
                     <li><label><input type="checkbox" name="mod1_archiver_chantiers"> Archiver les chantiers terminés</label></li>
                 </ul>
             </div>
-
             <div class="module">
                 <h3>Module 2: Gestion Financière & Comptable</h3>
                 <h4>Dépenses :</h4>
@@ -190,7 +240,6 @@
                     <li><label><input type="checkbox" name="mod2_confirmer_reception"> Le comptable de chantier doit "confirmer la réception" des fonds</label></li>
                 </ul>
             </div>
-
             <div class="module">
                 <h3>Module 3: Tableaux de Bord & Rapports</h3>
                 <h4>Tableau de Bord Principal (pour le DG) :</h4>
@@ -209,15 +258,12 @@
                     <li><label><input type="checkbox" name="mod3_visualiser_recus"> Visualiser toutes les photos des reçus pour une période donnée</label></li>
                 </ul>
             </div>
-            
             <div class="module">
                 <h3>Module 4: Le "Plus" – Assistant IA (Optionnel / Phase 3)</h3>
                 <ul class="feature-list">
                     <li><label><input type="checkbox" name="mod4_ia_chat"> Interface de chat pour poser des questions en langage simple</label></li>
                 </ul>
             </div>
-
-            <!-- Section 4 : Spécifications Techniques -->
             <h2>4. Spécifications Techniques & Livrables</h2>
             <div class="module">
                 <h3>Plateformes :</h3>
@@ -233,7 +279,6 @@
                     <li><label><input type="checkbox" name="tech_connexion_securisee"> Connexion sécurisée par mot de passe pour chaque utilisateur</label></li>
                 </ul>
             </div>
-
             <div class="button-container">
                 <button type="submit">Générer ma sélection de fonctionnalités</button>
             </div>
